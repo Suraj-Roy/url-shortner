@@ -11,12 +11,11 @@ spring:
       hibernate:
         ddl-auto: none
 
+Spring:
   data:
     redis:
-      host: localhost
-      port: 6380
-      username: redis
-      password: redis
+      url: redis://localhost:6380
+
 
   cache:
     type: redis

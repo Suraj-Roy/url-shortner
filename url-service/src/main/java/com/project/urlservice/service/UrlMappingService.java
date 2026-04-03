@@ -24,7 +24,7 @@ public class UrlMappingService {
     private final UrlMappingRepository urlMappingRepository;
     private final UrlMapper urlMapper;
 
-    @CachePut(value = "urls_cache", key = "#urlRequestDto.shortUrl")
+    @CachePut(value = "urls_by_short", key = "#result.shortUrl")
     @Transactional
     public UrlResponseDto createUrl(UrlRequestDto urlRequestDto) {
         Optional<UrlMapping> findUrlMapping = urlMappingRepository
@@ -38,7 +38,7 @@ public class UrlMappingService {
         return urlMapper.mapToUrlResponseDto(savedUrlMapping);
     }
 
-    @Cacheable(value = "urls_cache", key = "#shortUrl")
+    @Cacheable(value = "urls_by_short", key = "#shortUrl")
     public UrlResponseDto getUrl(String shortUrl){
         return urlMappingRepository.findByShortUrl(shortUrl)
                 .map(urlMapper::mapToUrlResponseDto)
@@ -47,7 +47,7 @@ public class UrlMappingService {
 
 
 
-    @CacheEvict(value = "urls_cache", key = "#shortUrl")
+    @CacheEvict(value = "urls_by_short", key = "#shortUrl")
     @Transactional
     public void deleteUrl(String shortUrl) {
         UrlMapping urlMapping = urlMappingRepository.findByShortUrl(shortUrl)
