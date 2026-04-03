@@ -12,5 +12,13 @@ services:
       - /mnt/data/F-Drive/postgres-data:/var/lib/postgresql/data
       - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
 
+  redis:
+    image: redis:8.6.2
+    container_name: redis-url
+    ports:
+      - "6380:6379"
+    volumes:
+      - /mnt/data/F-Drive/redis-data:/data
+
 volumes:
   postgres-data:

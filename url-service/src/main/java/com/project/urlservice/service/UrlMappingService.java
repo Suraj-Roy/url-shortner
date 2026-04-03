@@ -9,6 +9,9 @@ import com.project.urlservice.repository.UrlMappingRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -21,6 +24,7 @@ public class UrlMappingService {
     private final UrlMappingRepository urlMappingRepository;
     private final UrlMapper urlMapper;
 
+    @CachePut(value = "urls_cache", key = "#urlRequestDto.shortUrl")
     @Transactional
     public UrlResponseDto createUrl(UrlRequestDto urlRequestDto) {
         Optional<UrlMapping> findUrlMapping = urlMappingRepository
@@ -34,6 +38,7 @@ public class UrlMappingService {
         return urlMapper.mapToUrlResponseDto(savedUrlMapping);
     }
 
+    @Cacheable(value = "urls_cache", key = "#shortUrl")
     public UrlResponseDto getUrl(String shortUrl){
         return urlMappingRepository.findByShortUrl(shortUrl)
                 .map(urlMapper::mapToUrlResponseDto)
@@ -42,6 +47,7 @@ public class UrlMappingService {
 
 
 
+    @CacheEvict(value = "urls_cache", key = "#shortUrl")
     @Transactional
     public void deleteUrl(String shortUrl) {
         UrlMapping urlMapping = urlMappingRepository.findByShortUrl(shortUrl)
