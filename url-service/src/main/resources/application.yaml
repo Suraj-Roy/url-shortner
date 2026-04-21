@@ -3,23 +3,56 @@ spring:
     name: url-service
 
   datasource:
-    url: jdbc:postgresql://localhost:5451/url
+    url: ${SPRING_DATASOURCE_URL}
     username: postgres
     password: postgres
 
-    jpa:
-      hibernate:
-        ddl-auto: none
+  jpa:
+    hibernate:
+      ddl-auto: none
 
-Spring:
   data:
     redis:
-      url: redis://localhost:6380
-
+      url: ${SPRING_REDIS_URL}
 
   cache:
     type: redis
 
+  kafka:
+    template:
+      observation-enabled: true    # producer injects trace headers
+
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:19092}
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+      properties:
+        enable.idempotence: true
+
+
 
 server:
-  port: 8082
+  port: 8083
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  health:
+    kafka:
+      enabled: true
+
+logging:
+  level:
+    com:
+      project:
+        urlservice: DEBUG
+  pattern:
+    level: "%5p [%d{yyyy-MM-dd HH:mm:ss.SSS}] [${spring.application.name}] [traceId=%X{traceId}, spanId=%X{spanId}] %logger{36} : %msg%n"

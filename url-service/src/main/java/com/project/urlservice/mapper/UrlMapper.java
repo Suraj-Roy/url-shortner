@@ -36,7 +36,7 @@ public class UrlMapper {
 
     private String generateShortUrl(String url) {
         SecureRandom random = new SecureRandom();
-        String fingerprint = url + System.nanoTime() + random.nextInt(100000);
+        String fingerprint = url;
 
         long numericValue = Math.abs((long) fingerprint.hashCode());
 
