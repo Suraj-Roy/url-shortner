@@ -27,7 +27,7 @@ services:
       service: network-deploy-service
 
   postgres:
-    image: postgres:latest
+    image: postgres:16
     container_name: postgres-url
     environment:
       POSTGRES_USER: postgres
@@ -49,7 +49,7 @@ services:
       service: network-deploy-service
 
   postgres-analytics:
-    image: postgres:latest
+    image: postgres:16
     container_name: postgres-analytics
     environment:
       POSTGRES_USER: postgres
@@ -328,35 +328,37 @@ services:
       timeout: 10s
       retries: 10
       start_period: 30s
+
     extends:
       file: common-config.yml
       service: microservice-base-config
 
-#  analytics-service:
-#    image: url-shortner/analytics-service:latest
-#    container_name: analytics-service-ms
-#    depends_on:
-#      kafka:
-#        condition: service_healthy
-#      postgres-analytics:
-#        condition: service_healthy
-#    ports:
-#      - "8084:8084"
-#    environment:
-#      SPRING_APPLICATION_NAME: "analytics-service"
-#      OTEL_SERVICE_NAME: "analytics-service"
-#      SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
-#      # FIX: Use internal port 5432 (not host-mapped 5452)
-#      SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres-analytics:5432/analytics"
-#    healthcheck:
-#      test: "curl --fail --silent localhost:8084/actuator/health/readiness | grep UP || exit 1"
-#      interval: 30s
-#      timeout: 10s
-#      retries: 10
-#      start_period: 30s
-#    extends:
-#      file: common-config.yml
-#      service: microservice-base-config
+  analytics-service:
+    image: url-shortner/analytics-service:latest
+    container_name: analytics-service-ms
+    depends_on:
+      kafka:
+        condition: service_healthy
+      postgres-analytics:
+        condition: service_healthy
+    ports:
+      - "8085:8085"
+    environment:
+      SPRING_APPLICATION_NAME: "analytics-service"
+      OTEL_SERVICE_NAME: "analytics-service"
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres-analytics:5432/analytics"
+      SPRING_DATASOURCE_USERNAME: "postgres"
+      SPRING_DATASOURCE_PASSWORD: "postgres"
+    healthcheck:
+      test: "curl --fail --silent localhost:8085/actuator/health/readiness | grep UP || exit 1"
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    extends:
+      file: common-config.yml
+      service: microservice-base-config
 
 networks:
   url-shortner:

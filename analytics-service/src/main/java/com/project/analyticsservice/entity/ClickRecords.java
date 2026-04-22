@@ -3,6 +3,8 @@ package com.project.analyticsservice.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
+
 @Getter
 @Setter
 @Entity
@@ -17,7 +19,7 @@ public class ClickRecords {
 
     private String shortCode;
 
-    private String clickedAt;
+    private Instant clickedAt;
 
     private String ipAddress;
 
