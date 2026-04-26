@@ -70,6 +70,28 @@ services:
       file: common-config.yml
       service: network-deploy-service
 
+  postgres-auth:
+    image: postgres:16
+    container_name: postgres-auth
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: auth
+    ports:
+      - "5453:5432"
+    volumes:
+      # FIX: Separate volume for analytics database (was shared with url postgres)
+      - /mnt/data/F-Drive/postgres-auth-data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+
   redis:
     image: redis:8.6.2
     container_name: redis-url
@@ -352,6 +374,30 @@ services:
       SPRING_DATASOURCE_PASSWORD: "postgres"
     healthcheck:
       test: "curl --fail --silent localhost:8085/actuator/health/readiness | grep UP || exit 1"
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    extends:
+      file: common-config.yml
+      service: microservice-base-config
+
+  auth-service:
+    image: url-shortner/auth-service:latest
+    container_name: auth-service-ms
+    depends_on:
+      postgres-auth:
+        condition: service_healthy
+    ports:
+      - "8086:8086"
+    environment:
+      SPRING_APPLICATION_NAME: "auth-service"
+      OTEL_SERVICE_NAME: "auth-service"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres-auth:5453/auth"
+      SPRING_DATASOURCE_USERNAME: "postgres"
+      SPRING_DATASOURCE_PASSWORD: "postgres"
+    healthcheck:
+      test: "curl --fail --silent localhost:8086/actuator/health/readiness | grep UP || exit 1"
       interval: 30s
       timeout: 10s
       retries: 10
