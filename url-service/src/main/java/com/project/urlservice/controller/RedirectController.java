@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
@@ -18,6 +19,7 @@ import java.io.IOException;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
+@RequestMapping("/url/public/v1")
 public class RedirectController {
     private final UrlMappingService urlMappingService;
     private final AnalyticsService analyticsService;

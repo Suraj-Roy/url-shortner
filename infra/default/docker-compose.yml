@@ -342,8 +342,8 @@ services:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
       SPRING_REDIS_URL: "redis://redis:6379"
       SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/url"
-    ports:
-      - "8083:8083"
+#    ports:
+#      - "8083:8083"
     healthcheck:
       test: "curl --fail --silent localhost:8083/actuator/health/readiness | grep UP || exit 1"
       interval: 30s
@@ -363,8 +363,8 @@ services:
         condition: service_healthy
       postgres-analytics:
         condition: service_healthy
-    ports:
-      - "8085:8085"
+#    ports:
+#      - "8085:8085"
     environment:
       SPRING_APPLICATION_NAME: "analytics-service"
       OTEL_SERVICE_NAME: "analytics-service"
@@ -388,12 +388,12 @@ services:
     depends_on:
       postgres-auth:
         condition: service_healthy
-    ports:
-      - "8086:8086"
+#    ports:
+#      - "8086:8086"
     environment:
       SPRING_APPLICATION_NAME: "auth-service"
       OTEL_SERVICE_NAME: "auth-service"
-      SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres-auth:5453/auth"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres-auth:5432/auth"
       SPRING_DATASOURCE_USERNAME: "postgres"
       SPRING_DATASOURCE_PASSWORD: "postgres"
     healthcheck:
@@ -402,6 +402,19 @@ services:
       timeout: 10s
       retries: 10
       start_period: 30s
+    extends:
+      file: common-config.yml
+      service: microservice-base-config
+
+  gateway-service:
+    image: url-shortner/gateway-service:latest
+    container_name: gateway-service-ms
+
+    ports:
+      - "8087:8087"
+    environment:
+      SPRING_APPLICATION_NAME: "gateway-service"
+      OTEL_SERVICE_NAME: "gateway-service"
     extends:
       file: common-config.yml
       service: microservice-base-config
