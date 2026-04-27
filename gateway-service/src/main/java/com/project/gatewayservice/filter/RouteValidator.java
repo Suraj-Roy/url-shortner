@@ -1,7 +1,9 @@
 package com.project.gatewayservice.filter;
 
+
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -14,9 +16,10 @@ public class RouteValidator {
             "/url/public/v1/**"
     );
 
-    public Predicate<ServerHttpRequest> isSecured =
-            request -> openApiEndpoints
-                    .stream()
-                    .noneMatch(uri -> request.getURI().getPath().contains(uri));
+    private static final AntPathMatcher pathMatcher = new AntPathMatcher();
 
+    public Predicate<ServerHttpRequest> isSecured = request -> {
+        String path = request.getURI().getPath();
+        return openApiEndpoints.stream().noneMatch(pattern -> pathMatcher.match(pattern, path));
+    };
 }

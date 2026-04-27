@@ -1,5 +1,6 @@
 package com.project.gatewayservice.util;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -25,6 +26,14 @@ public class JwtUtil {
 
     private Key generateKey() {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+    }
+
+    public Claims getAllClaims(String token) {
+        return Jwts.parser()
+                .verifyWith((SecretKey) generateKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
 }
